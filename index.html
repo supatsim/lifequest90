@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4ecdd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LifeQuest90">
+<title>Life Quest 90</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#4a3a2e; --ink2:#6e5a48; --muted:#a3917f; --paper:#fffaf2; --bg:#f4ecdd; --line:#eadcc6;
+  --butter:#fde8b4; --butter-d:#e6b64c; --rose:#f9d5ce; --rose-d:#dd7d70; --mint:#d3efcf; --mint-d:#6fbf73;
+  --sky:#d8eaf8; --sky-d:#6aa8dc; --lilac:#e8def8; --lilac-d:#9a7fd6; --peach:#ffe0c4; --cream:#f3e8d6;
+  --display:'Kalam','Mali','Chalkboard SE','Comic Sans MS','Segoe Print',ui-rounded,system-ui,sans-serif; --body:'Mali',ui-rounded,'SF Pro Rounded','Nunito',system-ui,-apple-system,sans-serif;
+  --shadow:0 6px 16px rgba(120,86,50,.10),0 1px 2px rgba(120,86,50,.06);
+  --gutter:16px; --r:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);background-image:radial-gradient(rgba(160,128,90,.16) 1px,transparent 1.3px);background-size:18px 18px;color:var(--ink);font-family:var(--body);font-weight:500;font-size:15px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+/* header: handwritten title pill like a sticker */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;padding:calc(12px + env(safe-area-inset-top)) var(--gutter) 12px;background:linear-gradient(var(--bg) 72%,rgba(244,236,221,0))}
+.top .logo{flex:1;min-width:0}
+.title-pill{display:inline-block;background:var(--paper);border:1.5px solid var(--line);border-radius:30px 34px 28px 36px;padding:6px 18px 6px 16px;box-shadow:var(--shadow);transform:rotate(-2.5deg);white-space:nowrap}
+.title-pill b{font-family:var(--display);font-size:24px;font-weight:700;font-style:italic;line-height:1.05}
+.title-pill b i{color:var(--rose-d);font-style:italic}
+.title-pill small{display:block;font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.2}
+.chip{display:inline-flex;align-items:center;gap:3px;font-weight:700;font-size:13px;padding:6px 10px;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;box-shadow:var(--shadow);white-space:nowrap}
+.sync{font-size:13px;display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--paper);border:1.5px solid var(--line);flex:none}
+.sync.off{background:var(--rose);width:auto;padding:0 10px;border-radius:999px;font-weight:700;font-size:12px}
+.sync.pend{background:var(--butter);width:auto;padding:0 10px;border-radius:999px;font-weight:700;font-size:12px}
+main{padding:6px var(--gutter) 14px}
+/* paper cards + washi tape */
+.card{position:relative;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:20px}
+.card.tape{margin-top:16px}
+.card.tape::before{content:'';position:absolute;top:-13px;left:50%;width:104px;height:26px;transform:translateX(-50%) rotate(-3deg);background:repeating-linear-gradient(-45deg,rgba(221,125,112,.72) 0 7px,rgba(255,250,242,.7) 7px 14px);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.card.tape.mint::before{background:repeating-linear-gradient(-45deg,rgba(111,191,115,.6) 0 7px,rgba(255,250,242,.7) 7px 14px)}
+.card.tape.lilac::before{background:repeating-linear-gradient(-45deg,rgba(154,127,214,.55) 0 7px,rgba(255,250,242,.7) 7px 14px)}
+.card.lined{background-image:repeating-linear-gradient(transparent 0 33px,rgba(214,192,160,.28) 33px 34px)}
+.card h2{font-family:var(--display);font-size:22px;font-weight:700;margin:2px 0 10px;line-height:1.2;letter-spacing:.2px}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+/* hero */
+.hero{display:flex;gap:14px;align-items:center}
+.sprite{flex:none;background:var(--butter);border-radius:50%;border:4px solid #fff;box-shadow:var(--shadow);animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-2deg)}}
+.hero .name{font-family:var(--display);font-size:24px;font-weight:700;line-height:1.1;word-break:break-word}
+.hero .cls{font-size:13px;color:var(--ink2);font-weight:600}
+.bar{height:14px;border-radius:999px;background:var(--cream);overflow:hidden;position:relative;margin:8px 0 3px}
+.bar>i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,#a9df9f,#6fbf73);transition:width .6s ease}
+.bar>i::after{content:'';position:absolute;left:6px;right:6px;top:3px;height:3px;border-radius:999px;background:rgba(255,255,255,.55)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:#fff;border:1.5px dashed var(--line);border-radius:16px;padding:7px 6px;text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:21px;font-weight:700;line-height:1.15}
+.stat span{font-size:11.5px;color:var(--muted);font-weight:600}
+/* buttons: soft pills */
+.btn{font-family:var(--body);font-weight:700;font-size:14px;line-height:1.2;color:var(--ink);background:var(--butter);border:1.5px solid rgba(74,58,46,.10);border-radius:999px;padding:10px 16px;min-height:44px;box-shadow:0 3px 0 rgba(120,86,50,.16);cursor:pointer;touch-action:manipulation;transition:transform .08s}
+.btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(120,86,50,.16)}
+.btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.btn.mint{background:var(--mint)} .btn.sky{background:var(--sky)} .btn.coral{background:var(--rose)} .btn.grape{background:var(--lilac)} .btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.block{width:100%}
+.btn.sm{font-size:13px;padding:7px 14px;min-height:38px}
+/* quests */
+.quest{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1.5px dashed var(--line)}
+.card h2+.quest{border-top:0}
+.qicon{width:48px;height:48px;flex:none;display:grid;place-items:center;font-size:24px;border-radius:50%;background:var(--butter);position:relative;border:3px solid #fff;box-shadow:0 2px 6px rgba(120,86,50,.12)}
+.quest.done .qicon::after{content:'✓';position:absolute;right:-5px;bottom:-4px;width:20px;height:20px;border-radius:50%;background:var(--mint-d);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
+.qtitle{font-weight:700}
+.qsub{font-size:12.5px;color:var(--muted)}
+.tag{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--cream);white-space:nowrap}
+.tag.ok{background:var(--mint)} .tag.rev{background:var(--butter)} .tag.pend{background:#fff0c7} .tag.bad{background:var(--rose)}
+/* red zone */
+.card.redzone{background:linear-gradient(135deg,#ffe8e3,#ffd6cf);border-color:#f3b8ae;animation:glow 2.2s ease-in-out infinite}
+.card.redzone h2{color:#b5544a}
+@keyframes glow{50%{box-shadow:0 0 0 7px rgba(221,125,112,.16),var(--shadow)}}
+/* schedule */
+.days{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin:0 0 10px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.daychip{font-weight:700;font-size:13px;padding:7px 12px;border:1.5px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;flex:none}
+.daychip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.daychip.today:not(.on){border-color:var(--rose-d);color:var(--rose-d)}
+.blk{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-left:6px solid var(--tc,var(--butter-d));border-radius:16px;margin-bottom:9px;background:#fff}
+.blk.redzone-b{background:#fff1ee}
+.blk.now{box-shadow:0 0 0 3px rgba(230,182,76,.35)}
+.blk.done{background:#f3fbf1}
+.time{font-weight:700;font-size:12.5px;width:46px;flex:none;line-height:1.35;color:var(--ink2)}
+.type{font-size:12px;color:var(--muted);font-weight:600}
+/* quest map: calendar style */
+.map{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.tile{aspect-ratio:1;border-radius:14px;border:1.5px solid transparent;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--body);font-weight:700;font-size:15px;color:var(--ink2);padding:0;line-height:1;position:relative;cursor:default}
+.tile .e{font-size:15px;margin-top:3px;line-height:1}
+.tile.complete{background:var(--butter);border-color:var(--butter-d);color:var(--ink)}
+.tile.revived{background:var(--rose);border-color:var(--rose-d);color:var(--ink)}
+.tile.today{background:#fff;border:2px solid var(--rose-d);color:var(--rose-d);box-shadow:0 0 0 3px rgba(221,125,112,.15)}
+.tile.missed .n{color:#cbbba8;text-decoration:line-through}
+.tile.future{color:var(--ink2)}
+.tile.revivable{background:#fff;border:2px dashed var(--rose-d);cursor:pointer;animation:wiggle 1.4s ease-in-out infinite}
+@keyframes wiggle{25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:14px;font-size:12px;color:var(--ink2);font-weight:600}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:5px;vertical-align:-2px;margin-right:4px;border:1.5px solid rgba(74,58,46,.15)}
+/* badges: round stickers */
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge{border:1.5px dashed var(--line);border-radius:18px;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;background:#fff}
+.badge .ico{width:50px;height:50px;border-radius:50%;background:var(--butter);margin:0 auto 6px;display:grid;place-items:center;font-size:24px;border:3px solid #fff;box-shadow:0 2px 6px rgba(120,86,50,.14)}
+.badge.locked{opacity:.4;filter:grayscale(1)}
+/* forms */
+label{display:block;font-size:13px;margin:10px 0 4px;font-weight:700;color:var(--ink2)}
+input[type=text],input[type=time],input[type=url],input[type=password],select,textarea{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;font-size:16px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--butter-d);box-shadow:0 0 0 3px rgba(230,182,76,.25)}
+textarea{min-height:76px;resize:vertical}
+.stars{display:flex;gap:4px}
+.star{font-size:30px;line-height:1;background:none;border:0;cursor:pointer;color:#e6dccd;padding:4px;min-width:44px;min-height:44px;transition:transform .1s}
+.star.on{color:#f5b93b;transform:scale(1.08)}
+/* bottom tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fffdf8;border-top:1px solid var(--line);border-radius:24px 24px 0 0;box-shadow:0 -6px 20px rgba(120,86,50,.08);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+.tabs .in{display:flex;max-width:480px;width:100%;padding:6px 8px}
+.tab{flex:1;border:0;background:none;padding:7px 0 6px;margin:0 3px;font-family:var(--body);font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);min-height:58px;border-radius:18px}
+.tab .ico{display:block;font-size:22px;margin-bottom:2px}
+.tab.on{color:var(--ink);background:var(--cream)}
+/* bottom sheet */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(74,58,46,.38);display:flex;align-items:flex-end;justify-content:center;padding:var(--gutter);animation:fade .2s}
+.sheet{position:relative;background:var(--paper);border:1.5px solid var(--line);box-shadow:0 12px 32px rgba(74,58,46,.22);border-radius:28px;width:100%;max-width:448px;max-height:88vh;overflow:auto;padding:22px 18px 18px;margin-bottom:env(safe-area-inset-bottom);animation:up .25s ease-out}
+.sheet::before{content:'';position:absolute;top:8px;left:50%;width:44px;height:5px;margin-left:-22px;border-radius:9px;background:var(--line)}
+.sheet h3{font-family:var(--display);font-size:24px;font-weight:700;line-height:1.2;margin:4px 0 8px}
+.sheet img.preview{width:100%;border-radius:18px;border:5px solid #fff;box-shadow:var(--shadow);display:block;margin:10px 0;transform:rotate(-1deg)}
+@keyframes up{from{transform:translateY(40px);opacity:0}} @keyframes fade{from{opacity:0}}
+.btnrow{display:flex;gap:8px;margin-top:14px}
+.btnrow .btn{flex:1}
+/* toasts & rewards */
+.toast{position:fixed;left:50%;top:calc(76px + env(safe-area-inset-top));transform:translateX(-50%);z-index:60;width:calc(100% - 32px);max-width:448px;pointer-events:none}
+.toast div{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);box-shadow:0 8px 20px rgba(74,58,46,.16);padding:10px 14px;border-radius:18px;margin-bottom:8px;font-size:14px;font-weight:600;animation:pop .25s ease-out}
+.toast .err{background:#ffe6e1;border-color:#f3b8ae} .toast .ok{background:#e6f6e2;border-color:#bfe3b8} .toast .info{background:#efe8fb;border-color:#d6c8f2}
+@keyframes pop{from{transform:translateY(-8px) scale(.96);opacity:0}}
+.float{position:fixed;left:50%;top:40%;transform:translateX(-50%);z-index:70;font-family:var(--display);font-size:22px;font-weight:700;color:var(--ink);background:var(--butter);border:3px solid #fff;padding:6px 18px;border-radius:999px;box-shadow:var(--shadow);animation:rise 1.4s ease-out forwards;pointer-events:none;white-space:nowrap}
+@keyframes rise{to{transform:translate(-50%,-90px);opacity:0}}
+.levelup{text-align:center}
+.levelup .big{font-family:var(--display);font-size:38px;font-weight:700;color:var(--lilac-d);margin:6px 0;transform:rotate(-3deg)}
+/* coach */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.tablewrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table.log{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:580px;width:100%;background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden}
+table.log th,table.log td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:center;white-space:nowrap}
+table.log th{background:var(--cream);font-size:11px;font-weight:700;color:var(--ink2)}
+table.log tr:last-child td{border-bottom:0}
+table.log td.l{text-align:left;white-space:normal;min-width:120px}
+.center{text-align:center}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top" id="top"></header>
+  <main id="view"><div class="card center"><span class="spin">✦</span> Loading quest…</div></main>
+</div>
+<nav class="tabs hidden" id="tabs"><div class="in">
+  <button class="tab on" data-act="tab" data-tab="home"><span class="ico">🏠</span>Home</button>
+  <button class="tab" data-act="tab" data-tab="plan"><span class="ico">📒</span>Plan</button>
+  <button class="tab" data-act="tab" data-tab="map"><span class="ico">🗺️</span>Map</button>
+  <button class="tab" data-act="tab" data-tab="me"><span class="ico">🎒</span>Hero</button>
+</div></nav>
+<div class="toast" id="toast" aria-live="polite"></div>
+<div id="modal"></div>
+<input type="file" id="photoInput" accept="image/*" capture="environment" class="hidden">
+
+<script>
+/* =========================================================================
+   LIFE QUEST 90 — Frontend (vanilla JS, no build step)
+   Layers: Config → Storage → Api (transport) → Outbox (offline) → Img
+           → Game state/actions → Views (pure HTML renderers) → Events/boot
+   ========================================================================= */
+'use strict';
+const APP_CONFIG = {
+  API_URL: '',            // GitHub Pages hosting: paste your Apps Script /exec URL here (or enter it in-app)
+  PHOTO_TARGET_BYTES: 300 * 1024,
+  PHOTO_MAX_DIM: 1280,
+  PHOTO_RAW_LIMIT: 25 * 1024 * 1024,
+  REQUEST_TIMEOUT_MS: 45000,
+};
+
+/* ---------- storage ---------- */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('lq90_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('lq90_' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  del(k) { try { localStorage.removeItem('lq90_' + k); } catch (e) {} },
+};
+
+/* ---------- utils ---------- */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = (n) => String(n).padStart(2, '0');
+const hmNow = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const inWin = (hm, w) => (w[0] <= w[1] ? hm >= w[0] && hm < w[1] : hm >= w[0] || hm < w[1]);
+const uuid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+  : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+const kb = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
+const uerr = (code, message) => Object.assign(new Error(message || code), { code });
+const isGAS = () => typeof google !== 'undefined' && google.script && google.script.run;
+
+const ERRORS = {
+  DUPLICATE_CHECKIN: 'Already checked in — this quest is done for today ✔',
+  PAYLOAD_TOO_LARGE: 'Photo is too large even after compression. Try another shot.',
+  BAD_IMAGE: 'That file is not a supported photo (JPEG/PNG/WebP).',
+  PHOTO_REQUIRED: 'Snap your breakfast first 📸',
+  BEDTIME_OUTSIDE_WINDOW: 'Bedtime check-in opens at 18:00.',
+  WAKE_OUTSIDE_WINDOW: 'Wake-up check-in is open 04:00–12:00.',
+  INSUFFICIENT_COINS: 'Not enough coins for a Revive Ticket yet.',
+  NOT_REVIVABLE: 'That day can’t be revived.',
+  REVIVE_WINDOW_EXPIRED: 'Revive Tickets only work within 2 days of a miss.',
+  CLOCK_SKEW: 'Your phone clock is ahead — please fix date & time.',
+  STALE_OFFLINE: 'An offline check-in was too old to sync and was dropped.',
+  UNAUTHORIZED: 'Your hero key is not valid.',
+  RED_ZONE_ACTIVE: 'Stay strong until the Red Zone ends to claim Focus!',
+  NOTE_REQUIRED: 'Add a short note for your coach.',
+  BUSY: 'Server busy — trying again soon.',
+  NO_API_URL: 'Set the API URL on the Hero tab first.',
+};
+const errMsg = (code, msg) => ERRORS[code] || msg || code || 'Something went wrong';
+
+/* ---------- transport (works on GAS HtmlService AND GitHub Pages) ---------- */
+const Api = {
+  url() { return LS.get('apiUrl', '') || APP_CONFIG.API_URL; },
+  call(action, payload) {
+    const req = Object.assign({ action }, payload || {});
+    if (isGAS()) {
+      return new Promise((resolve, reject) => {
+        google.script.run.withSuccessHandler(resolve)
+          .withFailureHandler((e) => reject(Object.assign(new Error(String((e && e.message) || e)), { network: true }))).api(req);
+      });
+    }
+    const url = this.url();
+    if (!url) return Promise.reject(uerr('NO_API_URL'));
+    const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const timer = setTimeout(() => ctl && ctl.abort(), APP_CONFIG.REQUEST_TIMEOUT_MS);
+    // text/plain = "simple request" → no CORS preflight (Apps Script cannot answer OPTIONS).
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(req), redirect: 'follow', signal: ctl ? ctl.signal : undefined })
+      .then((r) => { if (!r.ok) throw Object.assign(new Error('HTTP ' + r.status), { network: true }); return r.json(); })
+      .catch((e) => { if (e.code) throw e; throw Object.assign(new Error(e.name === 'AbortError' ? 'Request timed out' : (e.message || 'Network error')), { network: true }); })
+      .finally(() => clearTimeout(timer));
+  },
+};
+
+/* ---------- offline outbox (idempotent replay via requestId) ---------- */
+const Outbox = {
+  busy: false,
+  items() { return LS.get('outbox', []); },
+  has(key) { return this.items().some((i) => i.key === key); },
+  add(item) {
+    const all = this.items(); all.push(item);
+    if (!LS.set('outbox', all)) throw uerr('OUTBOX_FULL', 'Phone storage is full — connect to the internet to submit this check-in.');
+  },
+  remove(rid) { LS.set('outbox', this.items().filter((i) => i.payload.requestId !== rid)); },
+  async flush() {
+    if (this.busy || !navigator.onLine || !this.items().length) return;
+    this.busy = true; renderTop();
+    let synced = 0;
+    try {
+      for (const it of this.items()) {
+        let res;
+        try { res = await Api.call(it.action, it.payload); }
+        catch (e) { if (e.network) break; this.remove(it.payload.requestId); toast(errMsg(e.code, e.message), 'err'); continue; }
+        this.remove(it.payload.requestId);
+        if (res.ok) { synced++; if (res.data.state) applyState(res.data.state); if (res.data.rewards) showRewards(res.data.rewards, true); }
+        else if (res.error === 'BUSY') { LS.set('outbox', [it].concat(this.items())); break; }
+        else toast('Sync: ' + (it.label || it.action) + ' — ' + errMsg(res.error, res.message), 'err');
+      }
+    } finally {
+      this.busy = false;
+      if (synced) toast('☁️ Synced ' + synced + ' offline check-in' + (synced > 1 ? 's' : ''), 'ok');
+      render();
+    }
+  },
+};
+
+/* ---------- image compression (client-side, before upload) ---------- */
+const Img = {
+  bytes(dataUrl) { const i = dataUrl.indexOf(','); return Math.floor((dataUrl.length - i - 1) * 3 / 4); },
+  validate(file) {
+    if (!file) throw uerr('PHOTO_REQUIRED');
+    const looksImage = /^image\//.test(file.type || '') || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || '');
+    if (!looksImage) throw uerr('BAD_IMAGE');
+    if (file.size > APP_CONFIG.PHOTO_RAW_LIMIT) throw uerr('RAW_TOO_LARGE', 'Photo is ' + kb(file.size) + ' — the limit is 25 MB.');
+  },
+  decode(file) {
+    if (window.createImageBitmap) {
+      return createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => this.decodeImg(file));
+    }
+    return this.decodeImg(file);
+  },
+  decodeImg(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file); const im = new Image();
+      im.onload = () => { URL.revokeObjectURL(url); resolve(im); };
+      im.onerror = () => { URL.revokeObjectURL(url); reject(uerr('BAD_IMAGE', 'This photo format can’t be read here — try a JPEG.')); };
+      im.src = url;
+    });
+  },
+  async compress(file) {
+    this.validate(file);
+    const src = await this.decode(file);
+    const W = src.width, H = src.height;
+    let dim = APP_CONFIG.PHOTO_MAX_DIM, out = '', w = 0, h = 0, q = 0;
+    for (let pass = 0; pass < 5; pass++) {
+      const s = Math.min(1, dim / Math.max(W, H)); w = Math.round(W * s); h = Math.round(H * s);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(src, 0, 0, w, h);
+      for (q = 0.82; q >= 0.5; q -= 0.08) {
+        out = c.toDataURL('image/jpeg', q);
+        if (this.bytes(out) <= APP_CONFIG.PHOTO_TARGET_BYTES) return { dataUrl: out, bytes: this.bytes(out), w, h, quality: +q.toFixed(2), original: file.size };
+      }
+      dim = Math.round(dim * 0.75);
+    }
+    if (src.close) src.close();
+    if (out && this.bytes(out) <= 1.2 * 1024 * 1024) return { dataUrl: out, bytes: this.bytes(out), w, h, quality: +q.toFixed(2), original: file.size };
+    throw uerr('PAYLOAD_TOO_LARGE');
+  },
+};
+
+/* ---------- pixel hero sprite ---------- */
+const TIERS = [
+  { min: 1, bg: '#fde8b4', name: 'Sprout Squire' },
+  { min: 5, bg: '#d8eaf8', name: 'Little Knight' },
+  { min: 10, bg: '#e8def8', name: 'Star Mage' },
+  { min: 20, bg: '#ffe0c4', name: 'Golden Legend' },
+];
+const tier = (lv) => TIERS.filter((t) => lv >= t.min).pop();
+const HATS = [
+  '<path d="M50 24 C50 16 50 12 50 8" stroke="#5b8f4e" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="42" cy="9" rx="9" ry="5" transform="rotate(-25 42 9)" fill="#9fd88a" stroke="#4a3a2e" stroke-width="2"/><ellipse cx="58" cy="8" rx="9" ry="5" transform="rotate(25 58 8)" fill="#b7e6a3" stroke="#4a3a2e" stroke-width="2"/>',
+  '<path d="M19 46 Q50 26 81 46" stroke="#8fb6e0" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M19 46 Q50 26 81 46" stroke="#4a3a2e" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".35"/><circle cx="50" cy="34" r="5" fill="#ffd36e" stroke="#4a3a2e" stroke-width="2"/>',
+  '<ellipse cx="50" cy="31" rx="30" ry="6" fill="#b9a0ea" stroke="#4a3a2e" stroke-width="2.5"/><path d="M33 30 Q46 12 56 2 Q58 16 67 30 Z" fill="#c9b3f2" stroke="#4a3a2e" stroke-width="2.5" stroke-linejoin="round"/><path d="M50 17 l2 4 4 .6-3 2.9.8 4.2-3.8-2-3.8 2 .8-4.2-3-2.9 4-.6z" fill="#ffe08a"/>',
+  '<path d="M31 31 L34 13 L42 22 L50 8 L58 22 L66 13 L69 31 Z" fill="#ffd36e" stroke="#4a3a2e" stroke-width="2.5" stroke-linejoin="round"/><circle cx="50" cy="20" r="3" fill="#f28b82"/><circle cx="38" cy="25" r="2" fill="#8fcfe8"/><circle cx="62" cy="25" r="2" fill="#8fcfe8"/>',
+];
+function sprite(level, size) {
+  const t = tier(level || 1), hat = HATS[TIERS.indexOf(t)];
+  return `<svg class="sprite" viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${t.name}" style="background:${t.bg}">
+    <ellipse cx="50" cy="90" rx="24" ry="4" fill="#4a3a2e" opacity=".08"/>
+    <path d="M50 26c21 0 32 15 32 34s-13 27-32 27-32-8-32-27 11-34 32-34z" fill="#fff6e8" stroke="#4a3a2e" stroke-width="3"/>
+    <ellipse cx="22" cy="72" rx="6" ry="5" fill="#fff6e8" stroke="#4a3a2e" stroke-width="2.5"/><ellipse cx="78" cy="72" rx="6" ry="5" fill="#fff6e8" stroke="#4a3a2e" stroke-width="2.5"/>
+    <ellipse cx="39" cy="58" rx="3.8" ry="4.8" fill="#3b2a20"/><ellipse cx="61" cy="58" rx="3.8" ry="4.8" fill="#3b2a20"/>
+    <circle cx="40.3" cy="56.3" r="1.4" fill="#fff"/><circle cx="62.3" cy="56.3" r="1.4" fill="#fff"/>
+    <ellipse cx="31" cy="66" rx="6" ry="3.6" fill="#ffb3ad" opacity=".85"/><ellipse cx="69" cy="66" rx="6" ry="3.6" fill="#ffb3ad" opacity=".85"/>
+    <path d="M45 65 q5 5 10 0" stroke="#3b2a20" stroke-width="2.6" fill="none" stroke-linecap="round"/>${hat}</svg>`;
+}
+
+/* ---------- app state ---------- */
+const S = { mode: 'boot', tab: 'home', key: '', coachKey: '', state: null, coach: null, inflight: new Set(), planDay: null, quality: 0, photo: null, modalOpen: false, installEvt: null };
+const BADGE_ICONS = { 'Sprout': '🌱', 'Bronze Boots': '🥾', 'Silver Shield': '🛡️', 'Gold Crown': '👑', 'Mythril Cape': '🦸', 'Legend of 90': '🏆' };
+const TYPE_COLOR = { study: '#6aa8dc', gym: '#f29e6b', rest: '#9a7fd6', meal: '#e6b64c', redzone: '#dd7d70', flex: '#d58fc4', family: '#6fbf73', errand: '#8fa3b8', makeup: '#5bb5a8' };
+const TYPE_ICON = { study: '📘', gym: '🏋️', rest: '🛌', meal: '🍱', redzone: '🔥', flex: '✨', family: '👨‍👩‍👧', errand: '🛒', makeup: '📝' };
+const CORE = [
+  { task: 'wake', bg: '#fde8b4', icon: '🌅', title: 'Morning Wake-up', win: 'wake' },
+  { task: 'breakfast', bg: '#ffe0c4', icon: '🍳', title: 'Breakfast Proof', win: 'breakfastVerified' },
+  { task: 'bedtime', bg: '#e8def8', icon: '🌙', title: 'Bedtime Log', win: 'bedtime' },
+];
+const qd = () => (S.state ? S.state.today.questDate : '');
+
+function applyState(st) { S.state = st; LS.set('state', st); }
+/* Local quest date (same 04:00 cutoff rule as the server). If it moved past the cached
+   state's date (app left open overnight / resumed next morning) → refetch. */
+function localQuestDate() {
+  const cut = (S.state && S.state.rules.cutoffHour) || 4;
+  const d = new Date(Date.now() - cut * 3600000);
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+}
+function checkRollover() {
+  if (S.mode === 'player' && S.state && navigator.onLine && localQuestDate() !== S.state.today.questDate && !S.rolling) {
+    S.rolling = true;
+    refresh().finally(() => { S.rolling = false; });
+  }
+}
+
+/* ---------- actions ---------- */
+async function act(action, payload, meta) {
+  const key = meta.key;
+  if (S.inflight.has(key) || Outbox.has(key)) return null;          // double-tap / duplicate guard
+  const body = Object.assign({ playerKey: S.key, requestId: uuid(), clientTs: new Date().toISOString() }, payload);
+  S.inflight.add(key); render();
+  try {
+    if (!navigator.onLine) { enqueue(action, body, meta); return null; }
+    const res = await Api.call(action, body);
+    if (!res.ok) {
+      toast(errMsg(res.error, res.message), 'err');
+      if (res.error === 'DUPLICATE_CHECKIN') refresh();
+      if (res.error === 'UNAUTHORIZED') logout();
+      return null;
+    }
+    if (res.data.state) applyState(res.data.state);
+    if (res.data.rewards) showRewards(res.data.rewards);
+    return res.data;
+  } catch (e) {
+    if (e.network) enqueue(action, body, meta); else toast(errMsg(e.code, e.message), 'err');
+    return null;
+  } finally { S.inflight.delete(key); render(); }
+}
+function enqueue(action, body, meta) {
+  if (meta.noOffline) { toast('You’re offline — this needs a connection.', 'err'); return; }
+  try { Outbox.add({ action, payload: body, key: meta.key, label: meta.label || action, at: Date.now() }); toast('📦 Saved offline — will sync when you’re back online', 'info'); }
+  catch (e) { toast(e.message, 'err'); }
+}
+async function refresh() {
+  if (!S.key) return;
+  try {
+    const res = await Api.call('state', { playerKey: S.key });
+    if (res.ok) applyState(res.data);
+    else if (res.error === 'UNAUTHORIZED') { toast(errMsg(res.error), 'err'); logout(); }
+    else toast(errMsg(res.error, res.message), 'err');
+  } catch (e) { if (!e.network) toast(errMsg(e.code, e.message), 'err'); }
+  render();
+}
+function logout() { LS.del('key'); LS.del('state'); S.key = ''; S.state = null; S.mode = 'onboard'; render(); }
+
+function showRewards(rw, quiet) {
+  if (rw.exp > 0 || rw.coins) floatText((rw.exp ? '+' + rw.exp + ' EXP ' : '') + (rw.coins ? (rw.coins > 0 ? '+' : '') + rw.coins + '🪙' : ''));
+  if (rw.dayComplete) toast('🎉 All 3 main quests done — day cleared!', 'ok');
+  (rw.badges || []).forEach((b) => toast((BADGE_ICONS[b] || '🏅') + ' Badge unlocked: ' + b, 'ok'));
+  if (rw.levelUps > 0 && !quiet) openModal(`<div class="levelup">${sprite(rw.level, 96)}<div class="big">Level up!</div>
+    <p>You reached <b>Lv ${rw.level}</b> — ${esc(tier(rw.level).name)}<br>+${20 * rw.levelUps} bonus coins</p>
+    <button class="btn mint block" data-act="close">Yay! 🎉</button></div>`);
+}
+
+/* ---------- UI primitives ---------- */
+function toast(msg, type) {
+  const el = document.createElement('div'); el.className = type || ''; el.textContent = msg;
+  const box = $('#toast'); box.appendChild(el);
+  while (box.children.length > 2) box.firstChild.remove();          // never stack more than 2
+  setTimeout(() => el.remove(), 3200);
+}
+function floatText(t) { const el = document.createElement('div'); el.className = 'float'; el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 1500); }
+function openModal(html) { S.modalOpen = true; $('#modal').innerHTML = `<div class="overlay" data-act="overlay"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`; }
+function closeModal() { S.modalOpen = false; $('#modal').innerHTML = ''; S.photo = null; }
+
+/* ---------- views ---------- */
+function render() {
+  renderTop();
+  const tabs = $('#tabs');
+  tabs.classList.toggle('hidden', S.mode !== 'player');
+  tabs.querySelectorAll('.tab').forEach((b) => b.classList.toggle('on', b.dataset.tab === S.tab));
+  const v = $('#view');
+  if (S.mode === 'onboard') v.innerHTML = viewOnboard();
+  else if (S.mode === 'coach') v.innerHTML = viewCoach();
+  else if (S.mode === 'player') {
+    if (!S.state) { v.innerHTML = '<div class="card center"><span class="spin">✦</span> Summoning your hero…</div>'; return; }
+    v.innerHTML = ({ home: viewHome, plan: viewPlan, map: viewMap, me: viewMe }[S.tab] || viewHome)();
+  }
+}
+function renderTop() {
+  const n = Outbox.items().length;
+  const sync = !navigator.onLine ? '<span class="sync off" title="Offline">⚡ offline</span>'
+    : (Outbox.busy ? '<span class="sync pend"><span class="spin">↻</span></span>' : (n ? `<span class="sync pend">⏳ ${n}</span>` : '<span class="sync">☁️</span>'));
+  const p = S.state && S.mode === 'player' ? S.state.profile : null;
+  const sub = S.mode === 'coach' ? 'Coach view · read-only' : (p ? `Day ${Math.max(0, Math.min(S.state.today.dayNo, 90))} / 90 · Lv ${p.level}` : '90-day habit adventure');
+  $('#top').innerHTML = `<div class="logo"><span class="title-pill"><b>Life Quest <i>90</i></b><small>${sub}</small></span></div>
+    ${p ? `<span class="chip">🔥${p.streak}</span><span class="chip">🪙${p.coins}</span>` : ''}${sync}`;
+}
+
+function heroCard(p, t) {
+  const pct = Math.min(100, Math.round(p.exp / p.expToNext * 100));
+  return `<div class="card tape"><div class="hero">${sprite(p.level, 86)}<div class="grow">
+    <div class="name">${esc(p.name)}</div><div class="cls">Lv ${p.level} · ${esc(tier(p.level).name)}</div>
+    <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+    <div class="muted">${p.exp} / ${p.expToNext} EXP</div></div></div>
+    <div class="stats"><div class="stat"><span>Quest day</span><b>${Math.max(0, Math.min(t.dayNo, 90))}/90</b></div>
+    <div class="stat"><span>Streak</span><b>🔥${p.streak}</b></div><div class="stat"><span>Coins</span><b>🪙${p.coins}</b></div></div></div>`;
+}
+
+function activeRedZone(blocks) {
+  const hm = hmNow();
+  return (blocks || []).find((b) => b.type === 'redzone' && !b.done && hm >= b.start && hm < b.end);
+}
+
+function redZoneCard(b) {
+  return `<div class="card redzone"><h2>🔥 Red Zone ${esc(b.start)}–${esc(b.end)}</h2>
+    <p style="margin:0 0 12px">High-distraction hours. Stay on quest — or log a legit social exception for your coach.</p>
+    <div class="btnrow" style="margin-top:0"><button class="btn ghost sm" data-act="rz-exception" data-id="${esc(b.id)}">📝 Log exception</button>
+    <button class="btn mint sm" disabled title="Unlocks at ${esc(b.end)}">Focus ✔ @${esc(b.end)}</button></div></div>`;
+}
+
+function coreRow(c) {
+  const st = S.state, info = st.today.core[c.task], w = st.rules.windows[c.win];
+  const key = 'core:' + c.task + ':' + qd();
+  let right, sub;
+  if (info.done) {
+    sub = `Done at ${esc(info.time)}${info.value && c.task === 'bedtime' ? ' · ' + '★'.repeat(+info.value) : ''}`;
+    right = info.verified === 'REVIEW' ? '<span class="tag pend">👀 Review</span>' : '<span class="tag ok">✔ Done</span>';
+  } else if (Outbox.has(key)) { sub = 'Saved offline'; right = '<span class="tag pend">⏳ Queued</span>'; }
+  else if (S.inflight.has(key)) { sub = 'Sending…'; right = '<button class="btn sm" disabled><span class="spin">✦</span></button>'; }
+  else {
+    const open = c.task === 'breakfast' ? true : inWin(hmNow(), w);
+    sub = c.task === 'breakfast' ? `On-time ${w[0]}–${w[1]} · +${st.rules.exp.breakfast} EXP` : `Open ${w[0]}–${w[1]} · +${st.rules.exp[c.task]} EXP`;
+    right = open ? `<button class="btn sm ${c.task === 'bedtime' ? 'grape' : 'mint'}" data-act="core" data-task="${c.task}">${c.task === 'breakfast' ? '📸 Snap' : 'Check in'}</button>`
+      : `<button class="btn sm" disabled>${c.task === 'bedtime' ? 'Opens ' + w[0] : 'Closed'}</button>`;
+  }
+  return `<div class="quest ${info.done ? 'done' : ''}"><div class="qicon" style="background:${c.bg}">${c.icon}</div><div class="grow"><div class="qtitle">${c.title}</div><div class="qsub">${sub}</div></div>${right}</div>`;
+}
+
+function viewHome() {
+  const st = S.state, t = st.today, p = st.profile;
+  let html = '';
+  if (t.dayNo < 1) html += `<div class="card"><h2>⏳ Your quest begins soon</h2><p class="muted">Your 90-day quest starts on ${esc(p.startDate)}.</p></div>`;
+  if (t.dayNo > st.rules.questDays) html += `<div class="card"><h2>🏆 Season complete!</h2><p>You finished the 90-day quest! Best streak: ${p.bestStreak} days.</p></div>`;
+  const rz = activeRedZone(t.blocks);
+  if (rz) html += redZoneCard(rz);
+  html += heroCard(p, t);
+  if (st.revive.eligible.length) {
+    const d = st.revive.eligible[0];
+    html += `<div class="card tape" style="background:#fff1ee"><h2>💔 Streak broken — Day ${d.dayNo}</h2>
+      <p class="muted" style="margin-top:0">Use a Revive Ticket (${st.revive.cost}🪙) to save your streak. You have ${p.coins}🪙.</p>
+      <button class="btn coral block" data-act="revive" data-date="${esc(d.date)}" data-day="${d.dayNo}">❤️ Use a Revive Ticket</button></div>`;
+  }
+  html += `<div class="card"><h2>🗡️ Today's main quests</h2>${CORE.map(coreRow).join('')}</div>`;
+  const hm = hmNow();
+  const next = t.blocks.filter((b) => !b.done && b.end > hm).slice(0, 2);
+  html += `<div class="card"><h2>📜 Next on your plan</h2>${next.length ? next.map((b) => blockRow(b, true)).join('') : '<p class="muted">Nothing left today — rest up, hero!</p>'}
+    <button class="btn ghost block sm" data-act="tab" data-tab="plan">Open full plan →</button></div>`;
+  return html;
+}
+
+function blockRow(b, live) {
+  const hm = hmNow();
+  const now = live && hm >= b.start && hm < b.end;
+  const key = (b.type === 'redzone' ? 'rz:' : 'blk:') + b.id + ':' + qd();
+  let right = '';
+  if (live) {
+    if (b.done) right = `<span class="tag ok">${b.type === 'redzone' ? (b.mode === 'focus' ? '🛡️ Focus' : '📝 Noted') : '✔'}</span>`;
+    else if (Outbox.has(key)) right = '<span class="tag pend">⏳</span>';
+    else if (S.inflight.has(key)) right = '<span class="spin">✦</span>';
+    else if (hm < b.start) right = '<span class="tag">Later</span>';
+    else if (b.type === 'redzone') right = hm >= b.end
+      ? `<button class="btn sm mint" data-act="rz-focus" data-id="${esc(b.id)}">🛡️ Focus</button>`
+      : `<button class="btn sm ghost" data-act="rz-exception" data-id="${esc(b.id)}">📝 Note</button>`;
+    else right = `<button class="btn sm mint" data-act="block" data-id="${esc(b.id)}">Done ✓</button>`;
+  }
+  return `<div class="blk ${b.type === 'redzone' ? 'redzone-b' : ''} ${now ? 'now' : ''} ${b.done ? 'done' : ''}" style="--tc:${TYPE_COLOR[b.type] || '#e6b64c'}">
+    <div class="time">${esc(b.start)}<br>${esc(b.end)}</div><div class="grow"><div class="qtitle">${TYPE_ICON[b.type] || '✨'} ${esc(b.title)}</div>
+    <div class="type">${esc(b.type)}${b.custom ? ' · custom' : ''}${b.type === 'redzone' ? '' : ' · +' + b.exp + ' EXP'}</div></div>${right}</div>`;
+}
+
+function viewPlan() {
+  const st = S.state, t = st.today;
+  const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  const sel = S.planDay || t.dow;
+  const live = sel === t.dow;
+  const blocks = live ? t.blocks : (st.weekPlan[sel] || []);
+  const weekend = sel === 'SAT' || sel === 'SUN';
+  return `<div class="card"><h2>${weekend ? '🌴 Weekend mode' : '📒 Weekday plan'}</h2>
+    <div class="days">${days.map((d) => `<button class="daychip ${d === sel ? 'on' : ''} ${d === t.dow ? 'today' : ''}" data-act="planday" data-day="${d}">${d}</button>`).join('')}</div>
+    ${live ? '' : '<p class="muted" style="margin-top:0">Preview only — check-ins open on the day.</p>'}
+    ${blocks.length ? blocks.map((b) => blockRow(b, live)).join('') : '<p class="muted">Free day — add a custom quest!</p>'}
+    ${live ? `<button class="btn sky block" data-act="addblock">＋ Add ${t.weekend ? 'weekend task' : 'custom quest'}</button>` : ''}</div>
+    <div class="card"><h2>💡 How blocks work</h2><p class="muted" style="margin:0">Tick a block once it has started. Red Zones pay <b>${st.rules.exp.focus} EXP</b> for staying focused until the end, or log a social exception (+${st.rules.exp.exception}) so your coach sees the context.</p></div>`;
+}
+
+function viewMap() {
+  const st = S.state, p = st.profile;
+  const elig = new Set(st.revive.eligible.map((e) => e.date));
+  const ms = [7, 14, 30, 60, 90];
+  const done = st.map.filter((d) => d.status === 'complete' || d.status === 'revived').length;
+  const closed = st.map.filter((d) => d.status !== 'future' && d.status !== 'today').length;
+  const tiles = st.map.map((d) => {
+    const rv = elig.has(d.date), mile = ms.indexOf(d.dayNo) >= 0;
+    const sticker = d.status === 'complete' ? (mile ? '🏅' : '🌟') : d.status === 'revived' ? '💖' : d.status === 'today' ? '📍'
+      : d.status === 'missed' ? (rv ? '🩹' : '') : (d.dayNo === 90 ? '🏯' : mile ? '🚩' : '');
+    return `<button class="tile ${d.status} ${rv ? 'revivable' : ''} ${mile ? 'milestone' : ''}" ${rv ? `data-act="revive" data-date="${d.date}" data-day="${d.dayNo}"` : 'tabindex="-1"'} title="Day ${d.dayNo} · ${d.date} · ${d.status}" aria-label="Day ${d.dayNo} ${d.status}"><span class="n">${d.dayNo}</span>${sticker ? `<span class="e">${sticker}</span>` : ''}</button>`;
+  }).join('');
+  return `<div class="card tape lined"><h2>🗺️ 90-day quest map</h2>
+    <div class="stats" style="margin:0 0 12px"><div class="stat"><span>Cleared</span><b>${done}</b></div><div class="stat"><span>Best streak</span><b>${p.bestStreak}</b></div><div class="stat"><span>Success</span><b>${closed ? Math.round(done / closed * 100) : 100}%</b></div></div>
+    <div class="map">${tiles}</div>
+    <div class="legend"><span>🌟 Cleared</span><span>💖 Revived</span><span>📍 Today</span><span>🩹 Revivable</span><span>🚩 Milestone</span><span>🏯 Day 90</span></div></div>
+    <div class="card"><h2>❤️ Revive Tickets</h2><p class="muted" style="margin:0">Missed a day? Within ${2} days you can spend <b>${st.revive.cost}🪙</b> to restore it. Price rises +50 per ticket used (used: ${p.revivesUsed}).</p></div>`;
+}
+
+function viewMe() {
+  const st = S.state, p = st.profile, n = Outbox.items().length;
+  const all = Object.keys(st.rules.badges).map((k) => ({ n: +k, name: st.rules.badges[k] }));
+  return heroCard(p, st.today) + `
+  <div class="card tape lilac"><h2>🏅 Badges</h2><div class="badges">${all.map((b) => `<div class="badge ${p.badges.indexOf(b.name) >= 0 ? '' : 'locked'}"><span class="ico">${BADGE_ICONS[b.name] || '🏅'}</span>${esc(b.name)}<br><span class="muted">${b.n}-day streak</span></div>`).join('')}</div></div>
+  <div class="card"><h2>📊 Records</h2><div class="stats" style="margin:0"><div class="stat"><span>Total EXP</span><b>${p.totalExp}</b></div><div class="stat"><span>Best</span><b>${p.bestStreak}</b></div><div class="stat"><span>Revives</span><b>${p.revivesUsed}</b></div></div></div>
+  <div class="card"><h2>☁️ Sync</h2><p class="muted" style="margin-top:0">${navigator.onLine ? 'Online' : 'Offline'} · ${n} check-in(s) waiting</p>
+    <button class="btn sky block sm" data-act="sync" ${n && navigator.onLine ? '' : 'disabled'}>Sync now</button></div>
+  <div class="card"><h2>⚙️ Settings</h2>
+    <p class="muted" style="margin-top:0">Hero ID: <b>${esc(p.playerId)}</b> · started ${esc(p.startDate)}</p>
+    ${isGAS() ? '' : `<label for="apiUrl">API URL (Apps Script /exec)</label><input id="apiUrl" type="url" value="${esc(Api.url())}" placeholder="https://script.google.com/macros/s/…/exec"><button class="btn ghost block sm" style="margin-top:8px" data-act="save-api">Save API URL</button>`}
+    ${S.installEvt ? '<button class="btn grape block sm" style="margin-top:8px" data-act="install">📲 Install app</button>' : '<p class="muted">Install: Share ➜ “Add to Home Screen”.</p>'}
+    <button class="btn ghost block sm" style="margin-top:8px" data-act="logout">Switch hero</button></div>`;
+}
+
+function viewOnboard() {
+  return `<div class="card tape center">${sprite(1, 120)}<h2 style="margin-top:14px;font-size:28px">Welcome, hero!</h2>
+    <p class="muted">90 days. Small daily quests. Level up your real life.</p></div>
+    ${isGAS() ? '' : `<div class="card"><h2>🔌 Server</h2><label for="apiUrl">API URL (Apps Script /exec)</label><input id="apiUrl" type="url" value="${esc(Api.url())}" placeholder="https://script.google.com/macros/s/…/exec"></div>`}
+    <div class="card"><h2>🗝️ I have a hero key</h2><label for="keyIn">Player key</label><input id="keyIn" type="password" autocomplete="off" placeholder="Paste the key from your admin">
+      <button class="btn mint block" style="margin-top:12px" data-act="login">Enter ✨</button></div>
+    <div class="card"><h2>🌱 New hero</h2><label for="nameIn">Hero name</label><input id="nameIn" type="text" maxlength="30" placeholder="e.g. Mint the Brave">
+      <label for="codeIn">Invite code</label><input id="codeIn" type="text" autocomplete="off" placeholder="HERO-XXXXXX">
+      <button class="btn grape block" style="margin-top:12px" data-act="join">Start my quest!</button></div>`;
+}
+
+function viewCoach() {
+  const c = S.coach;
+  if (!c) return '<div class="card center"><span class="spin">✦</span> Loading coach dashboard…</div>';
+  if (!c.players.length) return '<div class="card"><h2>No heroes yet</h2><p class="muted">No heroes are assigned to this coach key yet.</p></div>';
+  return `<div class="card"><h2>🧭 Hi, ${esc(c.coach.name)}!</h2><p class="muted" style="margin:0">Read-only · updated ${esc(c.generatedAt)}</p>
+    <button class="btn ghost block sm" style="margin-top:10px" data-act="coach-refresh">↻ Refresh</button></div>` + c.players.map((p) => {
+    const k = p.kpis;
+    const rows = p.days.slice(0, S.coachDays || 14).map((d) => `<tr>
+      <td>${esc(d.date.slice(5))}<br><span class="muted">D${d.dayNo}</span></td>
+      <td><span class="tag ${d.status === 'complete' ? 'ok' : d.status === 'revived' ? 'rev' : d.status === 'missed' ? 'bad' : 'pend'}">${({ complete: '🌟 cleared', revived: '💖 revived', missed: 'missed', today: '📍 today' })[d.status] || esc(d.status)}</span></td>
+      <td>${esc(d.bedtime) || '—'}</td><td>${esc(d.wake) || '—'}</td><td>${d.sleepHours != null ? d.sleepHours + 'h' : '—'}</td><td>${d.quality ? '★'.repeat(d.quality) : '—'}</td>
+      <td>${d.breakfast ? `${esc(d.breakfast.time)} <span class="tag ${d.breakfast.verified === 'VERIFIED' ? 'ok' : 'pend'}">${esc(d.breakfast.verified)}</span>${d.breakfast.fileId ? ` <button class="btn sm ghost" data-act="photo" data-id="${esc(d.breakfast.fileId)}">📷</button>` : ''}` : '—'}</td>
+      <td>${d.blocksDone}/${d.blocksTotal}</td>
+      <td class="l">${d.redZone.map((r) => (r.mode === 'focus' ? '🛡️ focus' : '📝 ' + esc(r.note))).join('<br>') || '—'}</td></tr>`).join('');
+    return `<div class="card tape"><div class="hero">${sprite(p.level, 64)}<div class="grow"><div class="name">${esc(p.name)}</div>
+      <div class="cls">Lv ${p.level} · Day ${Math.max(0, Math.min(p.dayNo, 90))}/90 · 🔥${p.streak} (best ${p.bestStreak})</div>
+      <div class="muted">${p.badges.map((b) => (BADGE_ICONS[b] || '🏅') + ' ' + esc(b)).join(' · ') || 'No badges yet'}</div></div></div>
+      <div class="kpis" style="margin-top:12px">
+        <div class="stat"><span>Day completion</span><b>${k.completionRate}%</b></div><div class="stat"><span>Avg sleep</span><b>${k.avgSleepHours != null ? k.avgSleepHours + 'h' : '—'}</b></div>
+        <div class="stat"><span>On-time breakfast</span><b>${k.breakfastOnTimeRate}%</b></div><div class="stat"><span>Plan blocks</span><b>${k.blockCompletionRate}%</b></div>
+        <div class="stat"><span>Red-zone exceptions</span><b>${k.redZoneExceptions}</b></div><div class="stat"><span>Revives used</span><b>${p.revivesUsed}</b></div></div>
+      <h2 style="margin-top:16px">📒 Daily log</h2><div class="tablewrap"><table class="log"><thead><tr><th>Date</th><th>Status</th><th>🌙 Bed</th><th>🌅 Wake</th><th>Sleep</th><th>⭐</th><th>🍳 Breakfast</th><th>Plan</th><th>🔥 Red Zone</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No days yet</td></tr>'}</tbody></table></div>
+      ${p.days.length > (S.coachDays || 14) ? '<button class="btn ghost block sm" style="margin-top:10px" data-act="coach-more">Show all days</button>' : ''}</div>`;
+  }).join('');
+}
+
+/* ---------- modals ---------- */
+function bedtimeModal() {
+  S.quality = 0;
+  openModal(`<h3>🌙 Bedtime check-in</h3><p class="muted" style="margin:0">Logging at <b>${hmNow()}</b></p>
+    <label>Sleep-prep quality</label><div class="stars" role="radiogroup" aria-label="Quality">${[1, 2, 3, 4, 5].map((n) => `<button class="star" data-act="star" data-v="${n}" aria-label="${n} stars">★</button>`).join('')}</div>
+    <label for="bedNote">Notes (optional)</label><textarea id="bedNote" maxlength="200" placeholder="Screens off? Anything on your mind?"></textarea>
+    <div class="btnrow"><button class="btn ghost" data-act="close">Cancel</button><button class="btn grape" data-act="submit-bed">Log it · +${S.state.rules.exp.bedtime} EXP</button></div>`);
+}
+function photoModal(r) {
+  const onTime = inWin(hmNow(), S.state.rules.windows.breakfastVerified);
+  openModal(`<h3>🍳 Breakfast proof</h3><img class="preview" src="${r.dataUrl}" alt="Breakfast preview">
+    <p class="muted" style="margin:0">${r.w}×${r.h} · ${kb(r.bytes)} (from ${kb(r.original)}) · ${hmNow()} ${onTime ? '✔ on time' : '⚠ outside 05:00–10:30 (half EXP)'}</p>
+    <div class="btnrow"><button class="btn ghost" data-act="close">Retake</button><button class="btn mint" data-act="submit-photo">Submit proof 📸</button></div>`);
+}
+function exceptionModal(id) {
+  openModal(`<h3>📝 Red Zone exception</h3><p class="muted" style="margin-top:0">Legit social plan? Tell your coach (min 3 characters).</p>
+    <textarea id="rzNote" maxlength="200" placeholder="e.g. Team dinner for Ploy's farewell"></textarea>
+    <div class="btnrow"><button class="btn ghost" data-act="close">Cancel</button><button class="btn coral" data-act="submit-rz" data-id="${esc(id)}">Log exception</button></div>`);
+}
+function addBlockModal() {
+  const types = S.state.rules.blockTypes.filter((t) => t !== 'redzone');
+  const def = S.state.today.weekend ? 'family' : 'flex';
+  openModal(`<h3>＋ ${S.state.today.weekend ? 'Weekend task' : 'Custom quest'}</h3>
+    <label for="bTitle">Title</label><input id="bTitle" type="text" maxlength="40" placeholder="${S.state.today.weekend ? 'Visit grandma' : 'Extra IELTS speaking'}">
+    <div class="row"><div class="grow"><label for="bStart">Start</label><input id="bStart" type="time" value="${hmNow()}"></div><div class="grow"><label for="bEnd">End</label><input id="bEnd" type="time"></div></div>
+    <label for="bType">Type</label><select id="bType">${types.map((t) => `<option value="${t}" ${t === def ? 'selected' : ''}>${TYPE_ICON[t] || ''} ${t}</option>`).join('')}</select>
+    <div class="btnrow"><button class="btn ghost" data-act="close">Cancel</button><button class="btn sky" data-act="submit-block">Add quest</button></div>`);
+}
+function reviveModal(date, day) {
+  const st = S.state, can = st.profile.coins >= st.revive.cost;
+  openModal(`<div class="center"><div style="font-size:44px">❤️‍🩹</div><h3>Revive Day ${esc(day)}?</h3>
+    <p>${esc(date)} was missed. A Revive Ticket costs <b>${st.revive.cost}🪙</b>.<br>You have <b>${st.profile.coins}🪙</b>.</p>
+    ${can ? '' : `<p class="muted">Earn ${st.revive.cost - st.profile.coins} more coins by completing quests.</p>`}</div>
+    <div class="btnrow"><button class="btn ghost" data-act="close">Not now</button><button class="btn coral" data-act="submit-revive" data-date="${esc(date)}" ${can ? '' : 'disabled'}>Use ticket ❤️</button></div>`);
+}
+
+/* ---------- coach ---------- */
+async function loadCoach() {
+  try {
+    const res = await Api.call('coachView', { coachKey: S.coachKey });
+    if (!res.ok) { $('#view').innerHTML = `<div class="card"><h2>🚫 Access denied</h2><p class="muted">${esc(errMsg(res.error, res.message))}</p></div>`; return; }
+    S.coach = res.data; render();
+  } catch (e) { $('#view').innerHTML = `<div class="card"><h2>⚡ Offline</h2><p class="muted">${esc(errMsg(e.code, e.message))}</p></div>`; }
+}
+
+/* ---------- events (single delegated handler) ---------- */
+document.addEventListener('click', async (ev) => {
+  const el = ev.target.closest('[data-act]');
+  if (!el) return;
+  const a = el.dataset.act;
+  if (a === 'overlay') { if (ev.target === el) closeModal(); return; }
+  switch (a) {
+    case 'tab': S.tab = el.dataset.tab; window.scrollTo(0, 0); render(); checkRollover(); break;
+    case 'close': closeModal(); render(); break;
+    case 'core':
+      if (el.dataset.task === 'bedtime') bedtimeModal();
+      else if (el.dataset.task === 'breakfast') { $('#photoInput').value = ''; $('#photoInput').click(); }
+      else act('checkin', { task: 'wake' }, { key: 'core:wake:' + qd(), label: 'Wake-up' });
+      break;
+    case 'star':
+      S.quality = +el.dataset.v;
+      document.querySelectorAll('.star').forEach((s) => s.classList.toggle('on', +s.dataset.v <= S.quality));
+      break;
+    case 'submit-bed':
+      if (!S.quality) { toast('Pick 1–5 stars first ⭐', 'err'); break; }
+      { const note = $('#bedNote').value, q = S.quality; closeModal(); act('checkin', { task: 'bedtime', quality: q, note }, { key: 'core:bedtime:' + qd(), label: 'Bedtime' }); }
+      break;
+    case 'submit-photo':
+      { const img = S.photo && S.photo.dataUrl; closeModal(); if (img) act('breakfast', { image: img }, { key: 'core:breakfast:' + qd(), label: 'Breakfast' }); }
+      break;
+    case 'block': act('block', { blockId: el.dataset.id }, { key: 'blk:' + el.dataset.id + ':' + qd(), label: 'Plan block' }); break;
+    case 'rz-focus': act('redzone', { blockId: el.dataset.id, mode: 'focus' }, { key: 'rz:' + el.dataset.id + ':' + qd(), label: 'Red Zone focus' }); break;
+    case 'rz-exception': exceptionModal(el.dataset.id); break;
+    case 'submit-rz': {
+      const note = $('#rzNote').value.trim();
+      if (note.length < 3) { toast(ERRORS.NOTE_REQUIRED, 'err'); break; }
+      closeModal(); act('redzone', { blockId: el.dataset.id, mode: 'exception', note }, { key: 'rz:' + el.dataset.id + ':' + qd(), label: 'Red Zone exception' }); break;
+    }
+    case 'planday': S.planDay = el.dataset.day; render(); break;
+    case 'addblock': addBlockModal(); break;
+    case 'submit-block': {
+      const p = { title: $('#bTitle').value.trim(), start: $('#bStart').value, end: $('#bEnd').value, type: $('#bType').value, date: qd() };
+      if (!p.title || !p.start || !p.end || p.start >= p.end) { toast('Add a title and an end time after the start ⏰', 'err'); break; }
+      closeModal(); act('addBlock', p, { key: 'addblock', noOffline: true }); break;
+    }
+    case 'revive': reviveModal(el.dataset.date, el.dataset.day); break;
+    case 'submit-revive': { const d = el.dataset.date; closeModal(); const r = await act('revive', { date: d }, { key: 'revive:' + d, noOffline: true }); if (r && r.revived) toast('❤️ Streak revived!', 'ok'); break; }
+    case 'sync': Outbox.flush(); break;
+    case 'save-api': LS.set('apiUrl', $('#apiUrl').value.trim()); toast('API URL saved', 'ok'); refresh(); break;
+    case 'logout': logout(); break;
+    case 'install': if (S.installEvt) { S.installEvt.prompt(); S.installEvt = null; render(); } break;
+    case 'login': {
+      const k = $('#keyIn').value.trim(); const u = $('#apiUrl'); if (u) LS.set('apiUrl', u.value.trim());
+      if (k.length < 16) { toast('That key looks too short', 'err'); break; }
+      try { const res = await Api.call('state', { playerKey: k }); if (!res.ok) { toast(errMsg(res.error, res.message), 'err'); break; }
+        S.key = k; LS.set('key', k); applyState(res.data); S.mode = 'player'; S.tab = 'home'; render(); toast('Welcome back, ' + res.data.profile.name + '!', 'ok');
+      } catch (e) { toast(errMsg(e.code, e.message), 'err'); }
+      break;
+    }
+    case 'join': {
+      const u = $('#apiUrl'); if (u) LS.set('apiUrl', u.value.trim());
+      try { const res = await Api.call('join', { name: $('#nameIn').value, inviteCode: $('#codeIn').value });
+        if (!res.ok) { toast(errMsg(res.error, res.message), 'err'); break; }
+        S.key = res.data.playerKey; LS.set('key', S.key); S.mode = 'player'; render(); await refresh();
+        openModal(`<h3>🗝️ Save your hero key</h3><p class="muted">Use it to log in on another phone. Keep it secret.</p><input type="text" readonly value="${esc(S.key)}" onclick="this.select()"><div class="btnrow"><button class="btn mint" data-act="close">Got it!</button></div>`);
+      } catch (e) { toast(errMsg(e.code, e.message), 'err'); }
+      break;
+    }
+    case 'photo': {
+      openModal('<div class="center"><span class="spin">✦</span> Loading photo…</div>');
+      try { const res = await Api.call('photo', { coachKey: S.coachKey, fileId: el.dataset.id });
+        if (!res.ok) { closeModal(); toast(errMsg(res.error, res.message), 'err'); break; }
+        openModal(`<h3>📷 ${esc(res.data.questDate)}</h3><img class="preview" src="${res.data.dataUrl}" alt="Breakfast photo"><div class="btnrow"><button class="btn ghost" data-act="close">Close</button></div>`);
+      } catch (e) { closeModal(); toast(errMsg(e.code, e.message), 'err'); }
+      break;
+    }
+    case 'coach-refresh': S.coach = null; render(); loadCoach(); break;
+    case 'coach-more': S.coachDays = 999; render(); break;
+  }
+});
+
+$('#photoInput').addEventListener('change', async (ev) => {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  openModal('<div class="center"><span class="spin">✦</span> Shrinking photo for upload…</div>');
+  try { S.photo = await Img.compress(file); photoModal(S.photo); }
+  catch (e) { closeModal(); toast(e.code === 'RAW_TOO_LARGE' ? e.message : errMsg(e.code, e.message), 'err'); }
+});
+
+window.addEventListener('online', () => { render(); Outbox.flush().then(refresh); });
+window.addEventListener('offline', render);
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.mode === 'player') { Outbox.flush(); refresh(); } });
+setInterval(() => { if (S.mode === 'player' && !S.modalOpen) { render(); checkRollover(); } }, 30000);   // red-zone / window clock tick + day rollover
+
+/* ---------- boot ---------- */
+function getParams() {
+  return new Promise((resolve) => {
+    if (isGAS() && google.script.url) google.script.url.getLocation((loc) => resolve(loc.parameter || {}));
+    else {
+      const p = {}; new URLSearchParams(location.search + '&' + location.hash.replace(/^#/, '')).forEach((v, k) => { p[k] = v; });
+      resolve(p);
+    }
+  });
+}
+async function boot() {
+  const params = await getParams();
+  if (params.api) LS.set('apiUrl', params.api);
+  if (params.coach) { S.mode = 'coach'; S.coachKey = params.coach; render(); loadCoach(); return; }
+  if (params.key) { LS.set('key', params.key); if (history.replaceState) history.replaceState(null, '', location.pathname); }
+  S.key = LS.get('key', '');
+  if (!S.key) { S.mode = 'onboard'; render(); return; }
+  S.mode = 'player'; S.state = LS.get('state', null); render();
+  await Outbox.flush(); await refresh();
+}
+if ('serviceWorker' in navigator && !isGAS() && /^https?:/.test(location.protocol)) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+window.LQ = { S, Api, Outbox, Img, LS, act, render, boot };   // test hooks
+boot();
+</script>
+</body>
+</html>
