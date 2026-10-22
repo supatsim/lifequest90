@@ -599,14 +599,22 @@ function viewMe() {
 }
 
 function viewOnboard() {
+  const hasApi = isGAS() || !!Api.url();
+  const invite = S.invite || '';
+  const server = (isGAS() || (hasApi && !S.showServer)) ? '' :
+    `<div class="card"><h2>🔌 Server</h2><label for="apiUrl">API URL (Apps Script /exec)</label><input id="apiUrl" type="url" value="${esc(Api.url())}" placeholder="https://script.google.com/macros/s/…/exec"></div>`;
+  const join = `<div class="card tape mint"><h2>🌱 New hero</h2><label for="nameIn">Hero name</label><input id="nameIn" type="text" maxlength="30" placeholder="e.g. Mint the Brave">
+      ${invite ? `<input id="codeIn" type="hidden" value="${esc(invite)}"><p class="muted" style="margin:8px 0 0">🎟️ You were invited — just pick a name!</p>`
+        : `<label for="codeIn">Invite code</label><input id="codeIn" type="text" autocomplete="off" placeholder="HERO-XXXXXX">`}
+      <button class="btn grape block" style="margin-top:12px" data-act="join">Start my quest!</button></div>`;
+  const login = S.showLogin
+    ? `<div class="card"><h2>🗝️ I have a hero key</h2><label for="keyIn">Player key</label><input id="keyIn" type="password" autocomplete="off" placeholder="Paste your hero key">
+      <button class="btn mint block" style="margin-top:12px" data-act="login">Enter ✨</button></div>`
+    : `<p class="center"><button class="btn ghost sm" data-act="show-login">🗝️ I already have a hero key</button></p>`;
   return `<div class="card tape center">${sprite(1, 120)}<h2 style="margin-top:14px;font-size:28px">Welcome, hero!</h2>
     <p class="muted">90 days. Small daily quests. Level up your real life.</p></div>
-    ${isGAS() ? '' : `<div class="card"><h2>🔌 Server</h2><label for="apiUrl">API URL (Apps Script /exec)</label><input id="apiUrl" type="url" value="${esc(Api.url())}" placeholder="https://script.google.com/macros/s/…/exec"></div>`}
-    <div class="card"><h2>🗝️ I have a hero key</h2><label for="keyIn">Player key</label><input id="keyIn" type="password" autocomplete="off" placeholder="Paste the key from your admin">
-      <button class="btn mint block" style="margin-top:12px" data-act="login">Enter ✨</button></div>
-    <div class="card"><h2>🌱 New hero</h2><label for="nameIn">Hero name</label><input id="nameIn" type="text" maxlength="30" placeholder="e.g. Mint the Brave">
-      <label for="codeIn">Invite code</label><input id="codeIn" type="text" autocomplete="off" placeholder="HERO-XXXXXX">
-      <button class="btn grape block" style="margin-top:12px" data-act="join">Start my quest!</button></div>`;
+    ${server}${join}${login}
+    ${hasApi && !isGAS() && !S.showServer ? '<p class="center muted" style="font-size:12px"><a href="#" data-act="show-server" style="color:inherit">⚙️ Server settings</a></p>' : ''}`;
 }
 
 function viewCoach() {
@@ -725,6 +733,8 @@ document.addEventListener('click', async (ev) => {
     case 'sync': Outbox.flush(); break;
     case 'save-api': LS.set('apiUrl', $('#apiUrl').value.trim()); toast('API URL saved', 'ok'); refresh(); break;
     case 'logout': logout(); break;
+    case 'show-login': S.showLogin = true; render(); setTimeout(() => { const k = $('#keyIn'); if (k) k.focus(); }, 50); break;
+    case 'show-server': ev.preventDefault(); S.showServer = true; render(); break;
     case 'install': if (S.installEvt) { S.installEvt.prompt(); S.installEvt = null; render(); } break;
     case 'login': {
       const k = $('#keyIn').value.trim(); const u = $('#apiUrl'); if (u) LS.set('apiUrl', u.value.trim());
@@ -783,6 +793,7 @@ function getParams() {
 async function boot() {
   const params = await getParams();
   if (params.api) LS.set('apiUrl', params.api);
+  if (params.invite) S.invite = params.invite;
   if (params.coach) { S.mode = 'coach'; S.coachKey = params.coach; render(); loadCoach(); return; }
   if (params.key) { LS.set('key', params.key); if (history.replaceState) history.replaceState(null, '', location.pathname); }
   S.key = LS.get('key', '');
