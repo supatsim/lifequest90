@@ -611,7 +611,16 @@ function viewOnboard() {
     ? `<div class="card"><h2>🗝️ I have a hero key</h2><label for="keyIn">Player key</label><input id="keyIn" type="password" autocomplete="off" placeholder="Paste your hero key">
       <button class="btn mint block" style="margin-top:12px" data-act="login">Enter ✨</button></div>`
     : `<p class="center"><button class="btn ghost sm" data-act="show-login">🗝️ I already have a hero key</button></p>`;
-  return `<div class="card tape center">${sprite(1, 120)}<h2 style="margin-top:14px;font-size:28px">Welcome, hero!</h2>
+  const ua = navigator.userAgent || '';
+  const inApp = /Line\/|FBAN|FBAV|Instagram|MicroMessenger/i.test(ua);
+  const ios = /iPhone|iPad|iPod/.test(ua);
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let tip = '';
+  if (inApp) tip = `<div class="card tape" style="background:#fff1ee"><h2>📲 Open in ${ios ? 'Safari' : 'your browser'} first</h2>
+      <p style="margin:0">This chat app's browser can't install Life Quest 90. Tap <b>⋯</b> (or the share icon) and choose <b>Open in ${ios ? 'Safari' : 'browser'}</b>.</p></div>`;
+  else if (ios && !standalone) tip = `<div class="card tape lilac"><h2>📲 Install first, then join</h2>
+      <p style="margin:0">Tap <b>Share ⬆️</b> → <b>Add to Home Screen</b> → <b>Add</b>. Then open the <b>Life Quest 90</b> icon and start your quest there, so your progress stays in the app.</p></div>`;
+  return tip + `<div class="card tape center">${sprite(1, 120)}<h2 style="margin-top:14px;font-size:28px">Welcome, hero!</h2>
     <p class="muted">90 days. Small daily quests. Level up your real life.</p></div>
     ${server}${join}${login}
     ${hasApi && !isGAS() && !S.showServer ? '<p class="center muted" style="font-size:12px"><a href="#" data-act="show-server" style="color:inherit">⚙️ Server settings</a></p>' : ''}`;
