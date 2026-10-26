@@ -159,6 +159,37 @@ table.log td.l{text-align:left;white-space:normal;min-width:120px}
 .spin{display:inline-block;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .hidden{display:none!important}
+
+/* coach: activity completion + plan dots + day detail */
+.acts{display:flex;flex-direction:column;gap:11px}
+.act{display:flex;align-items:center;gap:10px}
+.act .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;flex:none;border:2px solid #fff;box-shadow:0 1px 4px rgba(120,86,50,.12)}
+.act .nm{font-weight:700;font-size:13.5px;line-height:1.25}
+.act .sub{font-size:11.5px;color:var(--muted)}
+.act .track{height:10px;border-radius:999px;background:var(--cream);overflow:hidden;margin-top:4px}
+.act .track i{display:block;height:100%;border-radius:999px}
+.act .pct{font-family:var(--display);font-weight:700;font-size:18px;width:48px;text-align:right;flex:none}
+.weak{background:#fff1ee;border:1.5px dashed #f3b8ae;border-radius:16px;padding:8px 12px;font-size:13px;margin-top:12px}
+.dots{display:flex;gap:2px;justify-content:center}
+.dots span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:var(--cream)}
+.dots span.ok{background:#d3efcf} .dots span.no{background:#f4ece0;opacity:.45;filter:grayscale(1)} .dots span.ex{background:#ffe0c4}
+.plancell{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:2px;cursor:pointer;font:inherit;color:inherit}
+.plancell b{font-size:11px;color:var(--ink2)}
+.legend2{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--ink2);margin-top:10px;font-weight:600}
+.drow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1.5px dashed var(--line)}
+.drow:first-of-type{border-top:0}
+/* quest editing */
+.edit{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;font-size:15px;flex:none;cursor:pointer;padding:0;margin-left:2px}
+.edit:disabled{opacity:.35;cursor:not-allowed}
+.edited{display:inline-block;font-size:11px;font-weight:700;background:#efe8fb;color:#7a5fc0;padding:1px 8px;border-radius:999px;margin-left:4px;vertical-align:2px;white-space:nowrap}
+.seg{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:16px;padding:10px 12px;background:#fff;cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit}
+.opt.on{border-color:var(--butter-d);background:#fffaf0;box-shadow:0 0 0 3px rgba(230,182,76,.18)}
+.opt .r{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px}
+.opt.on .r{border:5px solid var(--butter-d)}
+.opt b{display:block;font-size:14px}.opt span{font-size:12px;color:var(--muted)}
+.lock{font-size:12px;color:var(--muted);background:var(--cream);border-radius:12px;padding:8px 10px;margin-top:10px}
+.hiddenlist .blk{opacity:.6}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -228,6 +259,11 @@ const ERRORS = {
   NOTE_REQUIRED: 'Add a short note for your coach.',
   BUSY: 'Server busy — trying again soon.',
   NO_API_URL: 'Set the API URL on the Hero tab first.',
+  RED_ZONE_LOCKED: 'The Red Zone is set by your coach 🔒',
+  ALREADY_DONE: 'Already done — finished quests can’t be edited.',
+  NOTHING_TO_RESET: 'This quest is already the original.',
+  TODAY_ONLY: 'You can only edit today’s quests.',
+  NO_REMOVE: 'Plan quests can’t be removed — change the activity or time instead.',
 };
 const errMsg = (code, msg) => ERRORS[code] || msg || code || 'Something went wrong';
 
@@ -360,6 +396,7 @@ function sprite(level, size) {
 const S = { mode: 'boot', tab: 'home', key: '', coachKey: '', state: null, coach: null, inflight: new Set(), planDay: null, quality: 0, photo: null, modalOpen: false, installEvt: null };
 const BADGE_ICONS = { 'Sprout': '🌱', 'Bronze Boots': '🥾', 'Silver Shield': '🛡️', 'Gold Crown': '👑', 'Mythril Cape': '🦸', 'Legend of 90': '🏆' };
 const TYPE_COLOR = { study: '#6aa8dc', gym: '#f29e6b', rest: '#9a7fd6', meal: '#e6b64c', redzone: '#dd7d70', flex: '#d58fc4', family: '#6fbf73', errand: '#8fa3b8', makeup: '#5bb5a8' };
+const TYPE_BG = { study: '#d8eaf8', gym: '#ffe0c4', rest: '#e8def8', meal: '#fde8b4', redzone: '#ffd6cf', flex: '#f6dcef', family: '#d3efcf', errand: '#e4eaf0', makeup: '#d5efea' };
 const TYPE_ICON = { study: '📘', gym: '🏋️', rest: '🛌', meal: '🍱', redzone: '🔥', flex: '✨', family: '👨‍👩‍👧', errand: '🛒', makeup: '📝' };
 const CORE = [
   { task: 'wake', bg: '#fde8b4', icon: '🌅', title: 'Morning Wake-up', win: 'wake' },
@@ -529,7 +566,7 @@ function viewHome() {
   return html;
 }
 
-function blockRow(b, live) {
+function blockRow(b, live, date) {
   const hm = hmNow();
   const now = live && hm >= b.start && hm < b.end;
   const key = (b.type === 'redzone' ? 'rz:' : 'blk:') + b.id + ':' + qd();
@@ -543,23 +580,35 @@ function blockRow(b, live) {
       ? `<button class="btn sm mint" data-act="rz-focus" data-id="${esc(b.id)}">🛡️ Focus</button>`
       : `<button class="btn sm ghost" data-act="rz-exception" data-id="${esc(b.id)}">📝 Note</button>`;
     else right = `<button class="btn sm mint" data-act="block" data-id="${esc(b.id)}">Done ✓</button>`;
+  } else right = '<span class="tag">Preview</span>';
+  if (date && live) {
+    right += b.type === 'redzone' ? '<button class="edit" disabled title="Red Zone is set by your coach" aria-label="Locked">🔒</button>'
+      : b.done ? '' : `<button class="edit" data-act="edit-quest" data-id="${esc(b.id)}" data-date="${esc(date)}" aria-label="Edit quest">✏️</button>`;
   }
   return `<div class="blk ${b.type === 'redzone' ? 'redzone-b' : ''} ${now ? 'now' : ''} ${b.done ? 'done' : ''}" style="--tc:${TYPE_COLOR[b.type] || '#e6b64c'}">
-    <div class="time">${esc(b.start)}<br>${esc(b.end)}</div><div class="grow"><div class="qtitle">${TYPE_ICON[b.type] || '✨'} ${esc(b.title)}</div>
+    <div class="time">${esc(b.start)}<br>${esc(b.end)}</div><div class="grow"><div class="qtitle">${TYPE_ICON[b.type] || '✨'} ${esc(b.title)}${editedTag(b, date)}</div>
     <div class="type">${esc(b.type)}${b.custom ? ' · custom' : ''}${b.type === 'redzone' ? '' : ' · +' + b.exp + ' EXP'}</div></div>${right}</div>`;
 }
 
+const DOW_LONG = { MON: 'Monday', TUE: 'Tuesday', WED: 'Wednesday', THU: 'Thursday', FRI: 'Friday', SAT: 'Saturday', SUN: 'Sunday' };
+function editedTag(b, date) {
+  if (!b.edited) return '';
+  const dow = date ? ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][new Date(date + 'T00:00:00').getDay()] : '';
+  const txt = b.edited === 'day' ? 'today only' : b.edited === 'weekday' && dow ? 'every ' + DOW_LONG[dow].slice(0, 3) : 'edited';
+  return ` <span class="edited">✏️ ${txt}</span>`;
+}
 function viewPlan() {
   const st = S.state, t = st.today;
   const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   const sel = S.planDay || t.dow;
   const live = sel === t.dow;
   const blocks = live ? t.blocks : (st.weekPlan[sel] || []);
+  const date = (st.weekDates && st.weekDates[sel]) || (live ? t.questDate : '');
   const weekend = sel === 'SAT' || sel === 'SUN';
   return `<div class="card"><h2>${weekend ? '🌴 Weekend mode' : '📒 Weekday plan'}</h2>
     <div class="days">${days.map((d) => `<button class="daychip ${d === sel ? 'on' : ''} ${d === t.dow ? 'today' : ''}" data-act="planday" data-day="${d}">${d}</button>`).join('')}</div>
-    ${live ? '' : '<p class="muted" style="margin-top:0">Preview only — check-ins open on the day.</p>'}
-    ${blocks.length ? blocks.map((b) => blockRow(b, live)).join('') : '<p class="muted">Free day — add a custom quest!</p>'}
+    ${live ? '' : `<p class="muted" style="margin-top:0">Preview of ${esc(date)} — check-ins and edits open on the day.</p>`}
+    ${blocks.length ? blocks.map((b) => blockRow(b, live, date)).join('') : '<p class="muted">Free day — add a custom quest!</p>'}
     ${live ? `<button class="btn sky block" data-act="addblock">＋ Add ${t.weekend ? 'weekend task' : 'custom quest'}</button>` : ''}</div>
     <div class="card"><h2>💡 How blocks work</h2><p class="muted" style="margin:0">Tick a block once it has started. Red Zones pay <b>${st.rules.exp.focus} EXP</b> for staying focused until the end, or log a social exception (+${st.rules.exp.exception}) so your coach sees the context.</p></div>`;
 }
@@ -626,20 +675,78 @@ function viewOnboard() {
     ${hasApi && !isGAS() && !S.showServer ? '<p class="center muted" style="font-size:12px"><a href="#" data-act="show-server" style="color:inherit">⚙️ Server settings</a></p>' : ''}`;
 }
 
+function expandPlan(p, d) {
+  return (d.plan || []).map((x) => {
+    const m = (p.blockMeta || {})[x[0]] || { title: x[0], type: 'flex', start: '', end: '' };
+    const e = x[5] || null;
+    return { id: x[0], title: e ? e.t : m.title, type: e ? e.y : m.type, start: e ? e.s : m.start, end: e ? e.e : m.end, custom: m.custom,
+      edited: e ? e.k : '', done: x[1] === 1, time: x[2] || '', mode: x[3] || (x[1] === 1 ? 'done' : ''), note: x[4] || '' };
+  });
+}
+function planDots(blocks) {
+  return '<div class="dots">' + blocks.map((b) => {
+    if (b.type === 'redzone') return b.done ? (b.mode === 'exception' ? '<span class="ex" title="Red Zone exception">📝</span>' : '<span class="ok" title="Red Zone focus">🛡️</span>') : '<span class="no" title="Red Zone">🔥</span>';
+    return `<span class="${b.done ? 'ok' : 'no'}" title="${esc(b.title)}">${TYPE_ICON[b.type] || '✨'}</span>`;
+  }).join('') + '</div>';
+}
+function dayRuleLabel(r) {
+  const map = { DAILY: 'Daily', WEEKDAY: 'Weekdays', WEEKEND: 'Weekends' };
+  const u = String(r).toUpperCase();
+  return map[u] || u.split(',').map((x) => x.trim().charAt(0) + x.trim().slice(1).toLowerCase()).join(' / ');
+}
+function activityCard(p) {
+  const a = p.activities;
+  if (!a || !a.list.length) return `<div class="card tape mint"><h2>📊 Activity completion</h2><p class="muted" style="margin:0">Stats appear after the first full day.</p></div>`;
+  const rows = a.list.map((s) => {
+    const col = (TYPE_COLOR[s.type] || '#e6b64c');
+    const sub = s.type === 'redzone' ? `${s.focus} focus · ${s.exception} exception${s.exception === 1 ? '' : 's'} · ${s.done}/${s.scheduled} days`
+      : `${dayRuleLabel(s.dayRule)} ${esc(s.start)} · ${s.done}/${s.scheduled} days`;
+    return `<div class="act"><div class="ic" style="background:${TYPE_BG[s.type] || '#fde8b4'}">${TYPE_ICON[s.type] || '✨'}</div>
+      <div class="grow"><div class="nm">${esc(s.title)}</div><div class="sub">${sub}</div><div class="track"><i style="width:${s.pct}%;background:${col}"></i></div></div>
+      <div class="pct" style="color:${s.pct < 50 ? '#b5544a' : 'var(--ink)'}">${s.pct}%</div></div>`;
+  }).join('');
+  const w = a.weakest;
+  const weak = w ? `<div class="weak">⚠️ <b>Weakest habit: ${esc(w.title)}</b>. Missed ${w.missed} of ${w.scheduled} sessions${w.pattern ? ', mostly ' + esc(w.pattern) : ''}.</div>` : '';
+  return `<div class="card tape mint"><h2>📊 Activity completion</h2><p class="muted" style="margin:-4px 0 12px">Whole quest so far (${p.kpis.daysElapsed} day${p.kpis.daysElapsed === 1 ? '' : 's'}) · strongest → weakest</p><div class="acts">${rows}</div>${weak}</div>`;
+}
+function coachDayModal(pi, date) {
+  const p = S.coach.players[+pi]; const d = p && p.days.find((x) => x.date === date);
+  if (!d) return;
+  const dt = new Date(date + 'T00:00:00');
+  const title = dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  const st = { complete: '🌟 day cleared', revived: '💖 revived', missed: 'day missed', today: '📍 today (in progress)' }[d.status] || d.status;
+  const rows = d.blocks.map((b) => {
+    let tag, sub = `Planned ${esc(b.start)}–${esc(b.end)}${b.custom ? ' · custom' : ''}`;
+    if (b.type === 'redzone' && b.done && b.mode === 'exception') { tag = `<span class="tag rev">📝 Exception ${esc(b.time)}</span>`; sub = `📝 “${esc(b.note)}”`; }
+    else if (b.type === 'redzone' && b.done) tag = `<span class="tag ok">🛡️ Focus ${esc(b.time)}</span>`;
+    else if (b.done) tag = `<span class="tag ok">✔ ${esc(b.time)}</span>`;
+    else tag = d.status === 'today' ? '<span class="tag">Not yet</span>' : '<span class="tag bad">✖ Missed</span>';
+    return `<div class="drow"><div class="qicon" style="width:38px;height:38px;font-size:18px;background:${TYPE_BG[b.type] || '#fde8b4'}">${TYPE_ICON[b.type] || '✨'}</div>
+      <div class="grow"><div class="qtitle" style="font-size:14px">${esc(b.title)}${b.edited ? ' <span class="edited">✏️ edited</span>' : ''}</div><div class="qsub">${sub}</div></div>${tag}</div>`;
+  }).join('') + (d.hidden || []).map((id) => {
+    const m = (p.blockMeta || {})[id] || { title: id, type: 'flex', start: '', end: '' };
+    return `<div class="drow" style="opacity:.6"><div class="qicon" style="width:38px;height:38px;font-size:18px;background:${TYPE_BG[m.type] || '#fde8b4'}">${TYPE_ICON[m.type] || '✨'}</div>
+      <div class="grow"><div class="qtitle" style="font-size:14px">${esc(m.title)}</div><div class="qsub">Planned ${esc(m.start)}–${esc(m.end)} · not counted</div></div><span class="tag">🙈 Hidden</span></div>`;
+  }).join('');
+  openModal(`<h3>📋 ${esc(title)} · Day ${d.dayNo}</h3><p class="muted" style="margin:0 0 6px">${esc(p.name)} · ${d.blocksDone} of ${d.blocksTotal} plan activities · ${st}</p>${rows}
+    <div class="btnrow"><button class="btn ghost" data-act="close">Close</button></div>`);
+}
+
 function viewCoach() {
   const c = S.coach;
   if (!c) return '<div class="card center"><span class="spin">✦</span> Loading coach dashboard…</div>';
   if (!c.players.length) return '<div class="card"><h2>No heroes yet</h2><p class="muted">No heroes are assigned to this coach key yet.</p></div>';
   return `<div class="card"><h2>🧭 Hi, ${esc(c.coach.name)}!</h2><p class="muted" style="margin:0">Read-only · updated ${esc(c.generatedAt)}</p>
-    <button class="btn ghost block sm" style="margin-top:10px" data-act="coach-refresh">↻ Refresh</button></div>` + c.players.map((p) => {
+    <button class="btn ghost block sm" style="margin-top:10px" data-act="coach-refresh">↻ Refresh</button></div>` + c.players.map((p, pi) => {
     const k = p.kpis;
+    p.days.forEach((d) => { if (!d.blocks) d.blocks = expandPlan(p, d); });
     const rows = p.days.slice(0, S.coachDays || 14).map((d) => `<tr>
       <td>${esc(d.date.slice(5))}<br><span class="muted">D${d.dayNo}</span></td>
       <td><span class="tag ${d.status === 'complete' ? 'ok' : d.status === 'revived' ? 'rev' : d.status === 'missed' ? 'bad' : 'pend'}">${({ complete: '🌟 cleared', revived: '💖 revived', missed: 'missed', today: '📍 today' })[d.status] || esc(d.status)}</span></td>
       <td>${esc(d.bedtime) || '—'}</td><td>${esc(d.wake) || '—'}</td><td>${d.sleepHours != null ? d.sleepHours + 'h' : '—'}</td><td>${d.quality ? '★'.repeat(d.quality) : '—'}</td>
       <td>${d.breakfast ? `${esc(d.breakfast.time)} <span class="tag ${d.breakfast.verified === 'VERIFIED' ? 'ok' : 'pend'}">${esc(d.breakfast.verified)}</span>${d.breakfast.fileId ? ` <button class="btn sm ghost" data-act="photo" data-id="${esc(d.breakfast.fileId)}">📷</button>` : ''}` : '—'}</td>
-      <td>${d.blocksDone}/${d.blocksTotal}</td>
-      <td class="l">${d.redZone.map((r) => (r.mode === 'focus' ? '🛡️ focus' : '📝 ' + esc(r.note))).join('<br>') || '—'}</td></tr>`).join('');
+      <td>${d.blocksTotal ? `<button class="plancell" data-act="coach-day" data-p="${pi}" data-d="${esc(d.date)}">${planDots(d.blocks)}<b>${d.blocksDone}/${d.blocksTotal}${(d.hidden || []).length ? ' · 🙈' + d.hidden.length : ''} · tap ›</b></button>` : '—'}</td>
+      <td class="l">${d.blocks.filter((b) => b.type === 'redzone' && b.done).map((r) => (r.mode === 'exception' ? '📝 ' + esc(r.note) : '🛡️ focus')).join('<br>') || '—'}</td></tr>`).join('');
     return `<div class="card tape"><div class="hero">${sprite(p.level, 64)}<div class="grow"><div class="name">${esc(p.name)}</div>
       <div class="cls">Lv ${p.level} · Day ${Math.max(0, Math.min(p.dayNo, 90))}/90 · 🔥${p.streak} (best ${p.bestStreak})</div>
       <div class="muted">${p.badges.map((b) => (BADGE_ICONS[b] || '🏅') + ' ' + esc(b)).join(' · ') || 'No badges yet'}</div></div></div>
@@ -647,7 +754,8 @@ function viewCoach() {
         <div class="stat"><span>Day completion</span><b>${k.completionRate}%</b></div><div class="stat"><span>Avg sleep</span><b>${k.avgSleepHours != null ? k.avgSleepHours + 'h' : '—'}</b></div>
         <div class="stat"><span>On-time breakfast</span><b>${k.breakfastOnTimeRate}%</b></div><div class="stat"><span>Plan blocks</span><b>${k.blockCompletionRate}%</b></div>
         <div class="stat"><span>Red-zone exceptions</span><b>${k.redZoneExceptions}</b></div><div class="stat"><span>Revives used</span><b>${p.revivesUsed}</b></div></div>
-      <h2 style="margin-top:16px">📒 Daily log</h2><div class="tablewrap"><table class="log"><thead><tr><th>Date</th><th>Status</th><th>🌙 Bed</th><th>🌅 Wake</th><th>Sleep</th><th>⭐</th><th>🍳 Breakfast</th><th>Plan</th><th>🔥 Red Zone</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No days yet</td></tr>'}</tbody></table></div>
+      </div>${activityCard(p)}<div class="card"><h2>📒 Daily log</h2><div class="tablewrap"><table class="log"><thead><tr><th>Date</th><th>Status</th><th>🌙 Bed</th><th>🌅 Wake</th><th>Sleep</th><th>Quality ⭐</th><th>🍳 Breakfast</th><th>Plan activities</th><th>🔥 Red Zone</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No days yet</td></tr>'}</tbody></table></div>
+      <div class="legend2"><span>Sleep = bedtime → next wake</span><span>Quality = sleep-prep rating 1–5</span><span>Plan: coloured = done · faded = missed · 📝 = Red Zone exception</span></div>
       ${p.days.length > (S.coachDays || 14) ? '<button class="btn ghost block sm" style="margin-top:10px" data-act="coach-more">Show all days</button>' : ''}</div>`;
   }).join('');
 }
@@ -679,6 +787,22 @@ function addBlockModal() {
     <div class="row"><div class="grow"><label for="bStart">Start</label><input id="bStart" type="time" value="${hmNow()}"></div><div class="grow"><label for="bEnd">End</label><input id="bEnd" type="time"></div></div>
     <label for="bType">Type</label><select id="bType">${types.map((t) => `<option value="${t}" ${t === def ? 'selected' : ''}>${TYPE_ICON[t] || ''} ${t}</option>`).join('')}</select>
     <div class="btnrow"><button class="btn ghost" data-act="close">Cancel</button><button class="btn sky" data-act="submit-block">Add quest</button></div>`);
+}
+function editQuestModal(id) {
+  const st = S.state, t = st.today, date = t.questDate;
+  const b = t.blocks.find((x) => x.id === id);
+  if (!b) return;
+  const types = st.rules.blockTypes.filter((x) => x !== 'redzone');
+  const dlabel = new Date(date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  S.editing = { id, date };
+  openModal(`<h3>✏️ Edit ${b.custom ? 'custom' : "today's"} quest</h3>
+    <label for="eTitle">Activity</label><input id="eTitle" type="text" maxlength="40" value="${esc(b.title)}">
+    <div class="row"><div class="grow"><label for="eStart">Start</label><input id="eStart" type="time" value="${esc(b.start)}"></div><div class="grow"><label for="eEnd">End</label><input id="eEnd" type="time" value="${esc(b.end)}"></div></div>
+    <label for="eType">Type</label><select id="eType">${types.map((x) => `<option value="${x}" ${x === b.type ? 'selected' : ''}>${TYPE_ICON[x] || ''} ${x}</option>`).join('')}</select>
+    <div class="lock">${b.custom ? `✨ Your own custom quest for <b>today (${esc(dlabel)})</b>. You can change it or remove it.` : `📅 Applies to <b>today only (${esc(dlabel)})</b> — your plan is back to normal tomorrow. EXP stays +${b.exp}, and your coach sees it marked “✏️ edited”.`}</div>
+    <div class="btnrow"><button class="btn ghost" data-act="close">Cancel</button><button class="btn mint" data-act="submit-edit">Save changes</button></div>
+    ${b.custom ? '<div class="btnrow" style="margin-top:8px"><button class="btn coral" data-act="remove-quest">🗑️ Remove this quest</button></div>' : ''}
+    ${b.edited && !b.custom ? `<div class="btnrow" style="margin-top:8px"><button class="btn ghost" data-act="reset-quest" data-id="${esc(id)}">↺ Back to original</button></div>` : ''}`);
 }
 function reviveModal(date, day) {
   const st = S.state, can = st.profile.coins >= st.revive.cost;
@@ -738,6 +862,20 @@ document.addEventListener('click', async (ev) => {
       closeModal(); act('addBlock', p, { key: 'addblock', noOffline: true }); break;
     }
     case 'revive': reviveModal(el.dataset.date, el.dataset.day); break;
+    case 'edit-quest': editQuestModal(el.dataset.id); break;
+    case 'submit-edit': {
+      const e = S.editing, p = { blockId: e.id, date: e.date, title: $('#eTitle').value.trim(), start: $('#eStart').value, end: $('#eEnd').value, type: $('#eType').value };
+      if (!p.title || !p.start || !p.end || p.start >= p.end) { toast('Add an activity and an end time after the start ⏰', 'err'); break; }
+      closeModal(); const r = await act('editQuest', p, { key: 'edit:' + e.id, noOffline: true }); if (r) toast('✏️ Today’s quest updated', 'ok'); break;
+    }
+    case 'remove-quest': {
+      const e = S.editing;
+      if (!S.confirmRemove) { S.confirmRemove = true; el.textContent = 'Tap again to remove 🗑️'; setTimeout(() => { S.confirmRemove = false; }, 3000); break; }
+      S.confirmRemove = false; closeModal();
+      const r = await act('editQuest', { blockId: e.id, date: e.date, remove: true }, { key: 'edit:' + e.id, noOffline: true });
+      if (r) toast('🗑️ Custom quest removed', 'ok'); break;
+    }
+    case 'reset-quest': { const id = el.dataset.id; closeModal(); const r = await act('resetQuest', { blockId: id, date: qd() }, { key: 'edit:' + id, noOffline: true }); if (r) toast('↺ Back to the original quest', 'ok'); break; }
     case 'submit-revive': { const d = el.dataset.date; closeModal(); const r = await act('revive', { date: d }, { key: 'revive:' + d, noOffline: true }); if (r && r.revived) toast('❤️ Streak revived!', 'ok'); break; }
     case 'sync': Outbox.flush(); break;
     case 'save-api': LS.set('apiUrl', $('#apiUrl').value.trim()); toast('API URL saved', 'ok'); refresh(); break;
@@ -772,6 +910,7 @@ document.addEventListener('click', async (ev) => {
     }
     case 'coach-refresh': S.coach = null; render(); loadCoach(); break;
     case 'coach-more': S.coachDays = 999; render(); break;
+    case 'coach-day': coachDayModal(el.dataset.p, el.dataset.d); break;
   }
 });
 
